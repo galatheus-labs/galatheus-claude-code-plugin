@@ -1,0 +1,21 @@
+{
+  "name": "canvas",
+  "displayName": "Galatheus Canvas",
+  "description": "Connect Claude Code to a Galatheus Canvas workspace through galagent and the Canvas MCP bridge.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Galatheus Labs"
+  },
+  "homepage": "https://github.com/galatheus-labs/galatheus-claude-code-plugin",
+  "repository": "https://github.com/galatheus-labs/galatheus-claude-code-plugin",
+  "license": "MIT",
+  "keywords": [
+    "galatheus",
+    "canvas",
+    "claude-code",
+    "agents",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}

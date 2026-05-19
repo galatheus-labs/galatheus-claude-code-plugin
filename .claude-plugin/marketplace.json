@@ -1,0 +1,30 @@
+{
+  "name": "galatheus",
+  "owner": {
+    "name": "Galatheus Labs"
+  },
+  "description": "Galatheus plugins for Claude Code.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "canvas",
+      "displayName": "Galatheus Canvas",
+      "source": "./plugins/canvas",
+      "description": "Connect Claude Code to ticket-backed Galatheus Canvas work through galagent and MCP.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Galatheus Labs"
+      },
+      "homepage": "https://github.com/galatheus-labs/galatheus-claude-code-plugin",
+      "repository": "https://github.com/galatheus-labs/galatheus-claude-code-plugin",
+      "license": "MIT",
+      "category": "Productivity",
+      "tags": [
+        "agents",
+        "canvas",
+        "mcp",
+        "tickets"
+      ]
+    }
+  ]
+}
