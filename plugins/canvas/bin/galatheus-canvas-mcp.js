@@ -7,7 +7,7 @@ const { spawnSync } = require("node:child_process");
 const { URL } = require("node:url");
 
 const apiBase = (process.env.GALATHEUS_API_URL || "https://api.galatheus.dev").replace(/\/+$/, "");
-const apiKey = process.env.GALATHEUS_API_KEY || process.env.GALATHEUS_AGENT_API_KEY || "";
+const apiKey = process.env.GALATHEUS_AGENT_API_KEY || process.env.GALATHEUS_API_KEY || process.env.GALATHEUS_TOKEN || "";
 const galagent = process.env.GALATHEUS_GALAGENT || "galagent";
 let framedOutput = false;
 
@@ -276,7 +276,12 @@ async function callTool(name, args) {
   }
   if (name === "galatheus_ticket_create") {
     if (apiKey === "") return directAuthRequired(name);
-    const result = await request("POST", "/v1/tickets", input);
+    const payload = Object.assign({}, input);
+    if (payload.priority != null) {
+      const priority = Number(payload.priority);
+      if (Number.isFinite(priority)) payload.priority = priority;
+    }
+    const result = await request("POST", "/v1/tickets", payload);
     return textResult(result.body, !result.ok);
   }
   return textResult(`Unknown tool: ${name}`, true);

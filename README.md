@@ -74,6 +74,9 @@ export GALATHEUS_API_KEY="<api key from your Galatheus workspace>"
 export GALATHEUS_AGENT_API_KEY="<agent key>"
 ```
 
+When Claude Code is launched through `galagent connect <workspace-id> --claude`,
+`galagent` injects the scoped agent API environment for the MCP server.
+
 Available tools:
 
 - `galatheus_canvas_state`

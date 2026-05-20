@@ -37,6 +37,9 @@ calls, writes canvas context when needed, and unregisters when the process exits
 Use the MCP tools only when the session has a `GALATHEUS_API_KEY` or
 `GALATHEUS_AGENT_API_KEY` environment variable:
 
+`galagent connect <workspace-id> --claude` injects this environment for the
+launched Claude Code runtime.
+
 - `galatheus_canvas_state`: read the materialized canvas state and cursor.
 - `galatheus_canvas_events`: read changes after a saved cursor.
 - `galatheus_canvas_create_object`: create canvas goals, notes, evidence,
