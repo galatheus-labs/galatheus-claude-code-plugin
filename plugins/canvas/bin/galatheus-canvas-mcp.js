@@ -96,6 +96,7 @@ function runGalagent(args) {
 function directAuthRequired(toolName) {
   return textResult({
     error: `${toolName} requires direct API credentials`,
+    install: "Install galagent first with `curl -fsSL https://galatheus.dev/install.sh | sh`.",
     login: "Generate the login command from the Canvas Agents view, then start agent work with `galagent connect <canvas-workspace-id> --claude`.",
     direct_mcp: "For direct MCP writes, launch Claude Code with GALATHEUS_API_KEY or GALATHEUS_AGENT_API_KEY in the environment.",
     workspace_id: "Use the Canvas project id from https://app.galatheus.dev/w/<workspace-id>."
@@ -110,14 +111,14 @@ function normalizeDoctorForCanvas(doctor) {
       if (check && check.name === "token") {
         return {
           ...check,
-          action: "Open the Canvas Agents view and run the generated galagent login command."
+          action: "Install galagent if needed, then open the Canvas Agents view and run the generated galagent login command."
         };
       }
       return check;
     });
   }
   if (!clone.hasToken) {
-    clone.next = ["Generate login from Canvas Agents view"];
+    clone.next = ["Install galagent with `curl -fsSL https://galatheus.dev/install.sh | sh`", "Generate login from Canvas Agents view"];
   }
   return clone;
 }

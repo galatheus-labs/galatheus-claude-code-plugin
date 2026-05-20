@@ -10,7 +10,8 @@ decisions stay visible on the canvas as machine-legible context.
 
 ## Default Flow
 
-Login and agent lifecycle are owned by `galagent`, not by the plugin. The
+Login and agent lifecycle are owned by `galagent`, not by the plugin. Install
+`galagent` first with `curl -fsSL https://galatheus.dev/install.sh | sh`. The
 Canvas Agents view generates the one-time login command from the signed-in
 browser session.
 Prefer the built-in galagent lifecycle:

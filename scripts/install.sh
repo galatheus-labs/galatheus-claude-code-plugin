@@ -22,13 +22,16 @@ else
 fi
 
 if ! command -v galagent >/dev/null 2>&1; then
-  echo "Warning: galagent is not on PATH. Install galagent before running Canvas agents." >&2
+  echo "Warning: galagent is not on PATH. Install galagent before running Canvas agents:" >&2
+  echo "  curl -fsSL https://galatheus.dev/install.sh | sh" >&2
 elif ! galagent --help 2>/dev/null | grep -q "connect WORKSPACE_ID"; then
   echo "Warning: galagent is installed but does not support 'galagent connect'." >&2
-  echo "Install the current Galatheus CLI before running Canvas agents." >&2
+  echo "Install the current Galatheus CLI before running Canvas agents:" >&2
+  echo "  curl -fsSL https://galatheus.dev/install.sh | sh" >&2
 fi
 
 echo "Installed Galatheus Canvas plugin for Claude Code."
 echo "Next:"
+echo "  Install galagent first if it is missing: curl -fsSL https://galatheus.dev/install.sh | sh"
 echo "  Open https://app.galatheus.dev/w/<canvas-workspace-id> and run the generated galagent login command"
 echo "  galagent connect <canvas-workspace-id> --claude"

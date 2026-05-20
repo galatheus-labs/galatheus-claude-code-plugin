@@ -2,7 +2,7 @@
   "name": "canvas",
   "displayName": "Galatheus Canvas",
   "description": "Connect Claude Code to a Galatheus Canvas workspace through galagent and the Canvas MCP bridge.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": {
     "name": "Galatheus Labs"
   },

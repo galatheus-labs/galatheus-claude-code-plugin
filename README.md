@@ -26,9 +26,21 @@ claude plugin install canvas@galatheus
 
 ## Login And Agent Runtime
 
-Login is owned by `galagent`, not by the Claude Code plugin. Open the Canvas
-Agents view at `https://app.galatheus.dev/w/<workspace-id>`, click
-**Generate Login**, and run the generated command. It has this shape:
+Login is owned by `galagent`, not by the Claude Code plugin. Install
+`galagent` first on the machine where Claude Code will run:
+
+```bash
+curl -fsSL https://galatheus.dev/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+galagent --help
+```
+
+Packaged downloads are also listed at
+`https://galatheus.dev/onboarding.html#download`.
+
+Then open the Canvas Agents view at
+`https://app.galatheus.dev/w/<workspace-id>`, click **Generate Login**, and run
+the generated command. It has this shape:
 
 ```bash
 printf '%s' '<shown-once-api-key>' | galagent login canvas --token-stdin
@@ -48,7 +60,8 @@ galagent connect <canvas-workspace-id> --claude
 ticket, and unregisters the agent on exit.
 
 If `galagent connect` is missing, the installed `galagent` binary is stale.
-Install the current Galatheus CLI before the demo.
+Install the current Galatheus CLI with `https://galatheus.dev/install.sh`
+before the demo.
 
 ## Optional Direct MCP Use
 
