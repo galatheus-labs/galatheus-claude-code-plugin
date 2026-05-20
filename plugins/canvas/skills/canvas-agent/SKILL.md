@@ -10,11 +10,13 @@ decisions stay visible on the canvas as machine-legible context.
 
 ## Default Flow
 
-Login and agent lifecycle are owned by `galagent`, not by the plugin.
+Login and agent lifecycle are owned by `galagent`, not by the plugin. The
+Canvas Agents view generates the one-time login command from the signed-in
+browser session.
 Prefer the built-in galagent lifecycle:
 
 ```bash
-galagent login
+printf '%s' '<shown-once-api-key>' | galagent login canvas --token-stdin
 galagent doctor --json
 galagent workspace list --json
 galagent connect <canvas-workspace-id> --claude

@@ -30,5 +30,5 @@ fi
 
 echo "Installed Galatheus Canvas plugin for Claude Code."
 echo "Next:"
-echo "  galagent login"
+echo "  Open https://app.galatheus.dev/w/<canvas-workspace-id> and run the generated galagent login command"
 echo "  galagent connect <canvas-workspace-id> --claude"

@@ -26,10 +26,12 @@ claude plugin install canvas@galatheus
 
 ## Login And Agent Runtime
 
-Login is owned by `galagent`, not by the Claude Code plugin:
+Login is owned by `galagent`, not by the Claude Code plugin. Open the Canvas
+Agents view at `https://app.galatheus.dev/w/<workspace-id>`, click
+**Generate Login**, and run the generated command. It has this shape:
 
 ```bash
-galagent login
+printf '%s' '<shown-once-api-key>' | galagent login canvas --token-stdin
 galagent doctor --json
 galagent workspace list --json
 ```

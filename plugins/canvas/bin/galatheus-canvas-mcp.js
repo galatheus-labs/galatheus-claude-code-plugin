@@ -96,8 +96,8 @@ function runGalagent(args) {
 function directAuthRequired(toolName) {
   return textResult({
     error: `${toolName} requires direct API credentials`,
-    login: "Run `galagent login`, then start agent work with `galagent connect <canvas-workspace-id> --codex`.",
-    direct_mcp: "For direct MCP writes, launch Codex with GALATHEUS_API_KEY or GALATHEUS_AGENT_API_KEY in the environment.",
+    login: "Generate the login command from the Canvas Agents view, then start agent work with `galagent connect <canvas-workspace-id> --claude`.",
+    direct_mcp: "For direct MCP writes, launch Claude Code with GALATHEUS_API_KEY or GALATHEUS_AGENT_API_KEY in the environment.",
     workspace_id: "Use the Canvas project id from https://app.galatheus.dev/w/<workspace-id>."
   }, true);
 }
@@ -110,9 +110,9 @@ function galagentStatus() {
     doctor: doctor.body,
     connect_supported: help.ok && String(help.body).includes("connect WORKSPACE_ID"),
     next: [
-      "galagent login",
+      "Generate login from Canvas Agents view",
       "galagent workspace list --json",
-      "galagent connect <canvas-workspace-id> --codex"
+      "galagent connect <canvas-workspace-id> --claude"
     ]
   };
   return textResult(body, !doctor.ok);
@@ -125,7 +125,7 @@ function agentCommand(input) {
   return textResult({
     runtime,
     command: `galagent connect ${shellWord(workspace)} --${runtime}${name}`,
-    login: "Run `galagent login` once before connecting.",
+    login: "Run the Canvas-generated galagent login command once before connecting.",
     workspace_id: "Use the Canvas project id from app.galatheus.dev/w/<workspace-id>."
   });
 }
