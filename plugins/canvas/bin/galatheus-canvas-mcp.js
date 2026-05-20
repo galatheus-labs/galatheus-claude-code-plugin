@@ -102,12 +102,32 @@ function directAuthRequired(toolName) {
   }, true);
 }
 
+function normalizeDoctorForCanvas(doctor) {
+  if (!doctor || typeof doctor !== "object") return doctor;
+  const clone = JSON.parse(JSON.stringify(doctor));
+  if (Array.isArray(clone.checks)) {
+    clone.checks = clone.checks.map((check) => {
+      if (check && check.name === "token") {
+        return {
+          ...check,
+          action: "Open the Canvas Agents view and run the generated galagent login command."
+        };
+      }
+      return check;
+    });
+  }
+  if (!clone.hasToken) {
+    clone.next = ["Generate login from Canvas Agents view"];
+  }
+  return clone;
+}
+
 function galagentStatus() {
   const doctor = runGalagent(["--json", "doctor"]);
   const help = runGalagent(["--help"]);
   const body = {
     galagent,
-    doctor: doctor.body,
+    doctor: normalizeDoctorForCanvas(doctor.body),
     connect_supported: help.ok && String(help.body).includes("connect WORKSPACE_ID"),
     next: [
       "Generate login from Canvas Agents view",
