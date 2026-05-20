@@ -17,12 +17,36 @@ Inside Claude Code:
 /plugin install canvas@galatheus
 ```
 
-Then connect Claude Code to a workspace:
+For local checkout development:
+
+```bash
+claude plugin marketplace add "$PWD" --scope user
+claude plugin install canvas@galatheus
+```
+
+## Login And Agent Runtime
+
+Login is owned by `galagent`, not by the Claude Code plugin:
 
 ```bash
 galagent login
-galagent connect <workspace-id> --claude
+galagent doctor --json
+galagent workspace list --json
 ```
+
+To turn a Claude Code run into a Canvas ticket agent, use the Canvas project id
+from `https://app.galatheus.dev/w/<workspace-id>`:
+
+```bash
+galagent connect <canvas-workspace-id> --claude
+```
+
+`galagent connect` registers this machine as a `code-agent`, claims
+`canvas_task` tickets for that Canvas project, runs `claude -p`, completes the
+ticket, and unregisters the agent on exit.
+
+If `galagent connect` is missing, the installed `galagent` binary is stale.
+Install the current Galatheus CLI before the demo.
 
 ## Optional Direct MCP Use
 
@@ -41,11 +65,13 @@ Available tools:
 - `galatheus_canvas_events`
 - `galatheus_canvas_create_object`
 - `galatheus_ticket_create`
+- `galatheus_login_status`
+- `galatheus_agent_command`
 
 Direct MCP/API use is for custom workflows. The normal experience is:
 
 ```bash
-galagent connect <workspace-id> --claude
+galagent connect <canvas-workspace-id> --claude
 ```
 
 ## Development
