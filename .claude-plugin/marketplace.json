@@ -4,14 +4,14 @@
     "name": "Galatheus Labs"
   },
   "description": "Galatheus plugins for Claude Code.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "plugins": [
     {
       "name": "canvas",
       "displayName": "Galatheus Canvas",
       "source": "./plugins/canvas",
       "description": "Connect Claude Code to ticket-backed Galatheus Canvas work through galagent and MCP.",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "author": {
         "name": "Galatheus Labs"
       },

@@ -3,7 +3,7 @@
     "galatheus_canvas": {
       "command": "node",
       "args": [
-        "./bin/galatheus-canvas-mcp.js"
+        "${CLAUDE_PLUGIN_ROOT}/bin/galatheus-canvas-mcp.js"
       ],
       "env": {
         "GALATHEUS_API_URL": "https://api.galatheus.dev"
