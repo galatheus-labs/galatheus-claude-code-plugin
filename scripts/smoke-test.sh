@@ -4,9 +4,19 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 claude plugin validate "$ROOT" >/dev/null
-claude plugin validate "$ROOT/plugins/canvas" >/dev/null
+claude plugin validate "$ROOT/plugins/galatheus" >/dev/null
 
-node "$ROOT/plugins/canvas/bin/galatheus-canvas-mcp.js" <<'JSON' | grep -q '"galatheus_login_status"'
+node "$ROOT/plugins/galatheus/bin/galatheus-cloud-mcp.js" <<'JSON' | grep -q '"galatheus_login_status"'
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+JSON
+
+node "$ROOT/plugins/galatheus/bin/galatheus-cloud-mcp.js" <<'JSON' | grep -q '"galatheus_ticket_complete"'
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}
+{"jsonrpc":"2.0","id":2,"method":"tools/list"}
+JSON
+
+node "$ROOT/plugins/galatheus/bin/galatheus-cloud-mcp.js" <<'JSON' | grep -q '"galatheus_workspace_list"'
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}
 {"jsonrpc":"2.0","id":2,"method":"tools/list"}
 JSON

@@ -3,15 +3,15 @@
   "owner": {
     "name": "Galatheus Labs"
   },
-  "description": "Galatheus plugins for Claude Code.",
-  "version": "0.1.5",
+  "description": "Galatheus Cloud plugins for Claude Code.",
+  "version": "0.2.0",
   "plugins": [
     {
-      "name": "canvas",
-      "displayName": "Galatheus Canvas",
-      "source": "./plugins/canvas",
-      "description": "Connect Claude Code to ticket-backed Galatheus Canvas work through galagent and MCP.",
-      "version": "0.1.5",
+      "name": "galatheus",
+      "displayName": "Galatheus Cloud",
+      "source": "./plugins/galatheus",
+      "description": "Connect Claude Code to Galatheus Cloud workspaces, Canvas work, and agent workflows through galagent and MCP.",
+      "version": "0.2.0",
       "author": {
         "name": "Galatheus Labs"
       },
@@ -22,6 +22,7 @@
       "tags": [
         "agents",
         "canvas",
+        "cloud",
         "mcp",
         "tickets"
       ]

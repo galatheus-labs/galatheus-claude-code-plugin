@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "galatheus_cloud": {
+      "command": "node",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/bin/galatheus-cloud-mcp.js"
+      ]
+    }
+  }
+}

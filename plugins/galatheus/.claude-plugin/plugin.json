@@ -1,8 +1,8 @@
 {
-  "name": "canvas",
-  "displayName": "Galatheus Canvas",
-  "description": "Connect Claude Code to a Galatheus Canvas workspace through galagent and the Canvas MCP bridge.",
-  "version": "0.1.5",
+  "name": "galatheus",
+  "displayName": "Galatheus Cloud",
+  "description": "Connect Claude Code to Galatheus Cloud workspaces, Canvas work, and agent workflows through galagent and MCP.",
+  "version": "0.2.0",
   "author": {
     "name": "Galatheus Labs"
   },
@@ -12,6 +12,7 @@
   "keywords": [
     "galatheus",
     "canvas",
+    "cloud",
     "claude-code",
     "agents",
     "mcp"
