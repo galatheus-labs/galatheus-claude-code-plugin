@@ -420,7 +420,7 @@ async function guardTicketScope(input) {
     ok = fetched.ok;
     body = fetched.body;
   } else {
-    const fetched = await request("GET", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}`, input));
+    const fetched = await request("GET", scopedPath(`/v1/tickets/${encodeURIComponent(resolvedTicketId(input))}`, input));
     ok = fetched.ok;
     body = fetched.body;
   }
@@ -430,15 +430,22 @@ async function guardTicketScope(input) {
   return { ok: true };
 }
 
+// resolvedTicketId accepts the canonical `ticket_id` parameter name. The
+// legacy `id` field is also honored for backward compatibility with any callers
+// that haven't migrated yet.
+function resolvedTicketId(input) {
+  return String((input && (input.ticket_id || input.id)) || "").trim();
+}
+
 function galagentTicketSimple(input, action) {
   const args = galagentBaseArgs(input);
-  args.push("ticket", action, input.id);
+  args.push("ticket", action, resolvedTicketId(input));
   return runGalagent(args);
 }
 
 function galagentTicketComment(input) {
   const args = galagentBaseArgs(input);
-  args.push("ticket", "comment", input.id);
+  args.push("ticket", "comment", resolvedTicketId(input));
   addFlag(args, "--body", input.body);
   addFlag(args, "--actor", input.actor);
   return runGalagent(args);
@@ -446,7 +453,7 @@ function galagentTicketComment(input) {
 
 function galagentTicketComplete(input) {
   const args = galagentBaseArgs(input);
-  args.push("ticket", "complete", input.id);
+  args.push("ticket", "complete", resolvedTicketId(input));
   addFlag(args, "--result", input.result);
   addFlag(args, "--resolution", input.resolution);
   addFlag(args, "--actor", input.actor);
@@ -455,7 +462,7 @@ function galagentTicketComplete(input) {
 
 function galagentTicketReject(input) {
   const args = galagentBaseArgs(input);
-  args.push("ticket", "reject", input.id);
+  args.push("ticket", "reject", resolvedTicketId(input));
   addFlag(args, "--reason", input.reason);
   return runGalagent(args);
 }
@@ -597,10 +604,20 @@ function shellWord(value) {
 }
 
 function tools() {
+  // MCP tool annotations: readOnlyHint / destructiveHint / idempotentHint /
+  // openWorldHint inform clients (e.g. claude/codex) which calls are safe to
+  // auto-approve in headless / --full-auto runs. Without these, clients
+  // default to prompting for every call and headless runs cancel.
   return [
     {
       name: "galatheus_login_status",
       description: "Check local galagent login/readiness without revealing tokens.",
+      annotations: {
+        title: "Check Galatheus login status",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: false
+      },
       inputSchema: {
         type: "object",
         properties: {}
@@ -609,6 +626,12 @@ function tools() {
     {
       name: "galatheus_agent_command",
       description: "Return the galagent command that connects this CLI as a Galatheus Canvas ticket agent.",
+      annotations: {
+        title: "Build galagent connect command",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: false
+      },
       inputSchema: {
         type: "object",
         properties: {
@@ -621,9 +644,18 @@ function tools() {
     {
       name: "galatheus_agent_instructions",
       description: "Return Galatheus agent operating instructions for Claude or Codex from galagent.",
+      annotations: {
+        title: "Read agent instructions",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: false
+      },
       inputSchema: {
         type: "object",
         properties: {
+          // INTENTIONAL DIVERGENCE: this plugin defaults runtime to "claude"
+          // because it runs inside Claude Code; the codex plugin defaults to
+          // "codex" for the same host-runtime reason. Do NOT converge this.
           runtime: { type: "string", enum: ["claude", "codex"], description: "CLI runtime. Defaults to claude." }
         }
       }
@@ -631,6 +663,12 @@ function tools() {
     {
       name: "galatheus_workspace_list",
       description: "List Galatheus Cloud workspaces available to the current login so users can choose a workspace id.",
+      annotations: {
+        title: "List workspaces",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
         properties: {
@@ -644,6 +682,12 @@ function tools() {
     {
       name: "galatheus_canvas_state",
       description: "Read the materialized state for a Galatheus Canvas workspace.",
+      annotations: {
+        title: "Read canvas state",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
         required: ["workspace_id"],
@@ -656,6 +700,12 @@ function tools() {
     {
       name: "galatheus_canvas_events",
       description: "Read canvas events after a cursor.",
+      annotations: {
+        title: "Read canvas events",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
         required: ["workspace_id"],
@@ -668,6 +718,13 @@ function tools() {
     {
       name: "galatheus_canvas_create_object",
       description: "Create a goal, note, evidence object, decision, or ticket-backed card on a canvas.",
+      annotations: {
+        title: "Create canvas object",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
         required: ["workspace_id", "type", "title"],
@@ -692,6 +749,13 @@ function tools() {
     {
       name: "galatheus_ticket_create",
       description: "Create a Galatheus ticket through the ticket service.",
+      annotations: {
+        title: "Create ticket",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
         required: ["title"],
@@ -710,6 +774,12 @@ function tools() {
     {
       name: "galatheus_ticket_list",
       description: "List Galatheus tickets, usually filtered by status and target for the current Canvas work state.",
+      annotations: {
+        title: "List tickets",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
         properties: {
@@ -733,11 +803,17 @@ function tools() {
     {
       name: "galatheus_ticket_get",
       description: "Fetch one Galatheus ticket by id.",
+      annotations: {
+        title: "Get ticket",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
-        required: ["id"],
+        required: ["ticket_id"],
         properties: {
-          id: { type: "string" },
+          ticket_id: { type: "string", description: "Ticket id like T-xxxxxxxxxx." },
           workspace_id: { type: "string" },
           workspace: { type: "string" },
           project_id: { type: "string" },
@@ -749,11 +825,18 @@ function tools() {
     {
       name: "galatheus_ticket_claim",
       description: "Claim a Galatheus ticket for the authenticated user or scoped agent.",
+      annotations: {
+        title: "Claim ticket",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
-        required: ["id"],
+        required: ["ticket_id"],
         properties: {
-          id: { type: "string" },
+          ticket_id: { type: "string", description: "Ticket id like T-xxxxxxxxxx." },
           workspace_id: { type: "string" },
           workspace: { type: "string" },
           project_id: { type: "string" },
@@ -764,14 +847,21 @@ function tools() {
     },
     {
       name: "galatheus_ticket_comment",
-      description: "Add a comment event to a Galatheus ticket.",
+      description: "Post a comment (evidence, design note, status update) on an existing Galatheus ticket. Use this to attach evidence/progress to a ticket you have claimed.",
+      annotations: {
+        title: "Post ticket comment",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
-        required: ["id", "body"],
+        required: ["ticket_id", "body"],
         properties: {
-          id: { type: "string" },
-          body: { type: "string" },
-          actor: { type: "string" },
+          ticket_id: { type: "string", description: "Ticket id like T-xxxxxxxxxx." },
+          body: { type: "string", description: "Comment body (markdown supported)." },
+          actor: { type: "string", description: "Optional actor override; defaults to the authenticated principal." },
           workspace_id: { type: "string" },
           workspace: { type: "string" },
           project_id: { type: "string" },
@@ -783,11 +873,17 @@ function tools() {
     {
       name: "galatheus_ticket_events",
       description: "Read the event history for one Galatheus ticket.",
+      annotations: {
+        title: "Read ticket events",
+        readOnlyHint: true,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
-        required: ["id"],
+        required: ["ticket_id"],
         properties: {
-          id: { type: "string" },
+          ticket_id: { type: "string", description: "Ticket id like T-xxxxxxxxxx." },
           workspace_id: { type: "string" },
           workspace: { type: "string" },
           project_id: { type: "string" },
@@ -798,15 +894,22 @@ function tools() {
     },
     {
       name: "galatheus_ticket_complete",
-      description: "Complete a Galatheus ticket with a result summary.",
+      description: "Mark a Galatheus ticket as completed with a result summary. Use this after the work has landed (e.g. PR opened).",
+      annotations: {
+        title: "Complete ticket",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
-        required: ["id"],
+        required: ["ticket_id"],
         properties: {
-          id: { type: "string" },
-          result: { type: "string" },
-          resolution: { type: "string" },
-          actor: { type: "string" },
+          ticket_id: { type: "string", description: "Ticket id like T-xxxxxxxxxx." },
+          result: { type: "string", description: "Result summary (markdown supported)." },
+          resolution: { type: "string", description: "Optional short resolution status." },
+          actor: { type: "string", description: "Optional actor override; defaults to the authenticated principal." },
           workspace_id: { type: "string" },
           workspace: { type: "string" },
           project_id: { type: "string" },
@@ -818,12 +921,19 @@ function tools() {
     {
       name: "galatheus_ticket_reject",
       description: "Reject or close a Galatheus ticket with a reason.",
+      annotations: {
+        title: "Reject ticket",
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true
+      },
       inputSchema: {
         type: "object",
-        required: ["id"],
+        required: ["ticket_id"],
         properties: {
-          id: { type: "string" },
-          reason: { type: "string" },
+          ticket_id: { type: "string", description: "Ticket id like T-xxxxxxxxxx." },
+          reason: { type: "string", description: "Short reason for rejection." },
           workspace_id: { type: "string" },
           workspace: { type: "string" },
           project_id: { type: "string" },
@@ -909,50 +1019,60 @@ async function callTool(name, args) {
     return textResult(result.ok ? filterTicketListBody(result.body, input) : result.body, !result.ok);
   }
   if (name === "galatheus_ticket_get") {
+    const ticketId = resolvedTicketId(input);
+    if (ticketId === "") return textResult("ticket_id is required", true);
     if (apiKey === "") {
       const fallback = galagentTicketSimple(input, "get");
       const filtered = fallback.ok ? filterSingleTicketBody(fallback.body, input) : fallback.body;
-      return textResult(filtered, !fallback.ok || !!filtered.error);
+      return textResult(filtered, !fallback.ok || !!(filtered && filtered.error));
     }
-    const result = await request("GET", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}`, input));
+    const result = await request("GET", scopedPath(`/v1/tickets/${encodeURIComponent(ticketId)}`, input));
     const filtered = result.ok ? filterSingleTicketBody(result.body, input) : result.body;
-    return textResult(filtered, !result.ok || !!filtered.error);
+    return textResult(filtered, !result.ok || !!(filtered && filtered.error));
   }
   if (name === "galatheus_ticket_claim") {
+    const ticketId = resolvedTicketId(input);
+    if (ticketId === "") return textResult("ticket_id is required", true);
     const guard = await guardTicketScope(input);
     if (!guard.ok) return textResult(guard.body, true);
     if (apiKey === "") {
       const fallback = galagentTicketSimple(input, "claim");
       return textResult(fallback.body, !fallback.ok);
     }
-    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}/claim`, input), {});
+    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(ticketId)}/claim`, input), {});
     return textResult(result.body, !result.ok);
   }
   if (name === "galatheus_ticket_comment") {
+    const ticketId = resolvedTicketId(input);
+    if (ticketId === "") return textResult("ticket_id is required", true);
     const guard = await guardTicketScope(input);
     if (!guard.ok) return textResult(guard.body, true);
     if (apiKey === "") {
       const fallback = galagentTicketComment(input);
       return textResult(fallback.body, !fallback.ok);
     }
-    const payload = {
-      event_type: "comment",
-      summary: input.body,
-      payload: { body: input.body }
-    };
+    // Canonical kernel endpoint: POST /v1/tickets/{id}/comments with {body, actor?}.
+    // The kernel translates this into a ticket_event_append("comment") internally
+    // and returns a structured `comment` object. This matches `galagent ticket comment`
+    // and tools/galad/ticket_comments_api.go:94 (handleAppendTicketComment).
+    const payload = { body: input.body };
     if (input.actor) payload.actor = input.actor;
-    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}/events`, input), payload);
+    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(ticketId)}/comments`, input), payload);
     return textResult(result.body, !result.ok);
   }
   if (name === "galatheus_ticket_events") {
+    const ticketId = resolvedTicketId(input);
+    if (ticketId === "") return textResult("ticket_id is required", true);
     if (apiKey === "") {
       const fallback = galagentTicketSimple(input, "events");
       return textResult(fallback.body, !fallback.ok);
     }
-    const result = await request("GET", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}/events`, input));
+    const result = await request("GET", scopedPath(`/v1/tickets/${encodeURIComponent(ticketId)}/events`, input));
     return textResult(result.body, !result.ok);
   }
   if (name === "galatheus_ticket_complete") {
+    const ticketId = resolvedTicketId(input);
+    if (ticketId === "") return textResult("ticket_id is required", true);
     const guard = await guardTicketScope(input);
     if (!guard.ok) return textResult(guard.body, true);
     if (apiKey === "") {
@@ -963,10 +1083,12 @@ async function callTool(name, args) {
     for (const key of ["result", "resolution", "actor"]) {
       if (input[key] != null && input[key] !== "") payload[key] = input[key];
     }
-    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}/complete`, input), payload);
+    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(ticketId)}/complete`, input), payload);
     return textResult(result.body, !result.ok);
   }
   if (name === "galatheus_ticket_reject") {
+    const ticketId = resolvedTicketId(input);
+    if (ticketId === "") return textResult("ticket_id is required", true);
     const guard = await guardTicketScope(input);
     if (!guard.ok) return textResult(guard.body, true);
     if (apiKey === "") {
@@ -975,7 +1097,7 @@ async function callTool(name, args) {
     }
     const payload = {};
     if (input.reason != null && input.reason !== "") payload.reason = input.reason;
-    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(input.id)}/reject`, input), payload);
+    const result = await request("POST", scopedPath(`/v1/tickets/${encodeURIComponent(ticketId)}/reject`, input), payload);
     return textResult(result.body, !result.ok);
   }
   return textResult(`Unknown tool: ${name}`, true);
